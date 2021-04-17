@@ -211,6 +211,7 @@ public class GamePanel extends JPanel implements ActionListener {
         this.repaint();
         createOrange();
         direction = 'R';
+        snakeLength = 6;
         running = true;
         timer.start();
         orangesEaten = 0;
