@@ -11,10 +11,10 @@ public class GamePanel extends JPanel implements ActionListener {
     final int SCREEN_WIDTH = 800;
     final int SCREEN_HEIGHT = 800;
     final int UNIT_SIZE = 25;
-    final int GAME_UNITS = (SCREEN_WIDTH * SCREEN_HEIGHT)/UNIT_SIZE;
+    final int GAME_UNITS = (SCREEN_WIDTH * SCREEN_HEIGHT) / UNIT_SIZE;
     final int DELAY = 80;
-    final int x[] = new int[GAME_UNITS];
-    final int y[] = new int[GAME_UNITS];
+    int x[] = new int[GAME_UNITS];
+    int y[] = new int[GAME_UNITS];
 
     int snakeLength = 6;
     int orangesEaten;
@@ -24,161 +24,179 @@ public class GamePanel extends JPanel implements ActionListener {
     boolean running = false;
     Timer timer;
     Random random;
+    JButton restart;
 
 
-    GamePanel(){
+    GamePanel() {
         random = new Random();
-        this.setPreferredSize(new Dimension(SCREEN_WIDTH,SCREEN_HEIGHT));
+        this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
         this.setBackground(Color.BLACK);
         this.setFocusable(true);
         this.addKeyListener(new GameKeyAdapter());
+
+
+        //restart button
+        restart = new JButton("Restart");
+        restart.setSize(200, 70);
+        this.setLayout(null);
+        restart.setLocation((SCREEN_WIDTH - 200) / 2, (SCREEN_HEIGHT - 70) / 2 + 70);
+        restart.setFont(new Font("Ink Free", Font.BOLD, 35));
+        restart.setForeground(Color.WHITE);
+        restart.setBackground(Color.ORANGE);
+        restart.setVisible(false);
+        restart.addActionListener(e -> resetGame());
+        this.add(restart);
+
         startGame();
     }
-    public void startGame(){
+
+    public void startGame() {
         createOrange();
         this.running = true;
-        timer = new Timer(DELAY,this);
+        timer = new Timer(DELAY, this);
         timer.start();
     }
 
     @Override
-    public void paintComponent(Graphics g){
+    public void paintComponent(Graphics g) {
         super.paintComponent(g);
         draw(g);
     }
 
-    public void draw(Graphics g){
+    public void draw(Graphics g) {
 
-        if(running){
+        if (running) {
             //Grid
-            for (int i = 0; i < SCREEN_HEIGHT/UNIT_SIZE; i++){
-                g.drawLine(i * UNIT_SIZE,0,i * UNIT_SIZE,SCREEN_HEIGHT);
-                g.drawLine(0,i*UNIT_SIZE,SCREEN_WIDTH,i*UNIT_SIZE);
+            for (int i = 0; i < SCREEN_HEIGHT / UNIT_SIZE; i++) {
+                g.drawLine(i * UNIT_SIZE, 0, i * UNIT_SIZE, SCREEN_HEIGHT);
+                g.drawLine(0, i * UNIT_SIZE, SCREEN_WIDTH, i * UNIT_SIZE);
             }
 
             //Orange
             g.setColor(Color.ORANGE);
-            g.fillOval(orangeX,orangeY,UNIT_SIZE,UNIT_SIZE);
+            g.fillOval(orangeX, orangeY, UNIT_SIZE, UNIT_SIZE);
 
             //Snake
             for (int i = 0; i < snakeLength; i++) {
-                if(i == 0){
+                if (i == 0) {
                     g.setColor(Color.GREEN);
-                }else{
-                    g.setColor(new Color(40,130,0));
+                } else {
+                    g.setColor(new Color(40, 130, 0));
                 }
-                g.fillRect(x[i],y[i],UNIT_SIZE,UNIT_SIZE);
+                g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
             }
 
             g.setColor(Color.RED);
-            g.setFont(new Font("Ink Free",Font.BOLD,40));
+            g.setFont(new Font("Ink Free", Font.BOLD, 40));
             FontMetrics fontMetrics = getFontMetrics(g.getFont());
-            g.drawString("Score: " + orangesEaten,(SCREEN_WIDTH - fontMetrics.stringWidth("Score: " + orangesEaten))/2,fontMetrics.getHeight());
+            g.drawString("Score: " + orangesEaten, (SCREEN_WIDTH - fontMetrics.stringWidth("Score: " + orangesEaten)) / 2, fontMetrics.getHeight());
 
-        }else{
+        } else {
             gameOver(g);
         }
 
 
     }
 
-    public void gameOver(Graphics g){
+    public void gameOver(Graphics g) {
         g.setColor(Color.RED);
-        g.setFont(new Font("Ink Free",Font.BOLD,70));
+        g.setFont(new Font("Ink Free", Font.BOLD, 70));
         FontMetrics fontMetrics = getFontMetrics(g.getFont());
-        g.drawString("Snake Dead",(SCREEN_WIDTH - fontMetrics.stringWidth("Snake Dead"))/2,SCREEN_HEIGHT/2);
+        g.drawString("Game Over", (SCREEN_WIDTH - fontMetrics.stringWidth("Game Over")) / 2, SCREEN_HEIGHT / 2);
+
+        restart.setVisible(true);
     }
 
-    public void createOrange(){
-        orangeX = random.nextInt(SCREEN_WIDTH /UNIT_SIZE) * UNIT_SIZE;
-        orangeY = random.nextInt(SCREEN_HEIGHT/UNIT_SIZE) * UNIT_SIZE;
+    public void createOrange() {
+        orangeX = random.nextInt(SCREEN_WIDTH / UNIT_SIZE) * UNIT_SIZE;
+        orangeY = random.nextInt(SCREEN_HEIGHT / UNIT_SIZE) * UNIT_SIZE;
     }
 
-    public void move(){
+    public void move() {
 
         //Shift
-        for (int i = snakeLength; i > 0 ; i--) {
+        for (int i = snakeLength; i > 0; i--) {
             x[i] = x[i - 1];
             y[i] = y[i - 1];
         }
 
-            switch (direction){
-                case 'U':
-                    y[0] = y[0] - UNIT_SIZE;
-                    break;
-                case 'D':
-                    y[0] = y[0] + UNIT_SIZE;
-                    break;
-                case 'L':
-                    x[0] = x[0] - UNIT_SIZE;
-                    break;
-                case 'R':
-                    x[0] = x[0] + UNIT_SIZE;
-                    break;
-            }
+        switch (direction) {
+            case 'U':
+                y[0] = y[0] - UNIT_SIZE;
+                break;
+            case 'D':
+                y[0] = y[0] + UNIT_SIZE;
+                break;
+            case 'L':
+                x[0] = x[0] - UNIT_SIZE;
+                break;
+            case 'R':
+                x[0] = x[0] + UNIT_SIZE;
+                break;
+        }
     }
 
-    public void checkOrange(){
-        if((x[0] == orangeX) && (y[0] == orangeY)){
-            snakeLength ++;
-            orangesEaten ++;
+    public void checkOrange() {
+        if ((x[0] == orangeX) && (y[0] == orangeY)) {
+            snakeLength++;
+            orangesEaten++;
             createOrange();
         }
     }
 
-    public void checkCollisions(){
+    public void checkCollisions() {
         //Check for collision with the body
-        for (int i = snakeLength; i > 0; i --){
-            if((x[0] == x[i]) && (y[0] == y[i])){
+        for (int i = snakeLength; i > 0; i--) {
+            if ((x[0] == x[i]) && (y[0] == y[i])) {
                 running = false;
             }
         }
 
         //Check for collision with left or right of game frame
-        if(x[0] < 0){
+        if (x[0] < 0) {
             running = false;
         }
 
-        if(x[0] >  SCREEN_WIDTH){
+        if (x[0] > SCREEN_WIDTH) {
             running = false;
         }
 
         //Check for collision with top or bottom game frame
-        if(y[0] < 0){
+        if (y[0] < 0) {
             running = false;
         }
 
-        if(y[0] >  SCREEN_HEIGHT){
+        if (y[0] > SCREEN_HEIGHT) {
             running = false;
         }
 
-        if(!running){
+        if (!running) {
             timer.stop();
         }
 
     }
 
-    public class GameKeyAdapter extends KeyAdapter{
+    public class GameKeyAdapter extends KeyAdapter {
         @Override
         public void keyPressed(KeyEvent e) {
-            switch (e.getKeyCode()){
+            switch (e.getKeyCode()) {
                 case KeyEvent.VK_LEFT:
-                    if(direction != 'R'){
+                    if (direction != 'R') {
                         direction = 'L';
                     }
                     break;
                 case KeyEvent.VK_RIGHT:
-                    if(direction != 'L'){
+                    if (direction != 'L') {
                         direction = 'R';
                     }
                     break;
                 case KeyEvent.VK_UP:
-                    if(direction != 'D'){
+                    if (direction != 'D') {
                         direction = 'U';
                     }
                     break;
                 case KeyEvent.VK_DOWN:
-                    if(direction != 'U'){
+                    if (direction != 'U') {
                         direction = 'D';
                     }
                     break;
@@ -186,9 +204,22 @@ public class GamePanel extends JPanel implements ActionListener {
         }
     }
 
+    public void resetGame(){
+        x = new int[GAME_UNITS];
+        y = new int[GAME_UNITS];
+        this.revalidate();
+        this.repaint();
+        createOrange();
+        direction = 'R';
+        running = true;
+        timer.start();
+        orangesEaten = 0;
+        restart.setVisible(false);
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(running){
+        if (running) {
             move();
             checkOrange();
             checkCollisions();
